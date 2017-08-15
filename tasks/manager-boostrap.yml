@@ -1,0 +1,14 @@
+---
+- name: initialize swarm cluster
+  shell: >
+    docker swarm init
+    --advertise-addr={{ docker_swarm_iface }}:2377
+  when: "'docker-manager-operational' not in groups"
+  register: bootstrap_first_node
+
+- name: add initialized host to docker-manager-operational group
+  add_host:
+    hostname: "{{ item }}"
+    groups: docker-manager-operational
+  with_items: "{{ ansible_play_hosts | default(play_hosts) }}"
+  when: bootstrap_first_node | changed

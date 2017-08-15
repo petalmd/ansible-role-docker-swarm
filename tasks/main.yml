@@ -1,0 +1,30 @@
+---
+- name: Boostrap managers status
+  include: boostrap-manager-steps.yml
+  when: step == "boostrap-manager-steps"
+
+- include: manager-boostrap.yml
+  when: step == "manager-boostrap"
+
+- include: retreive-join-token.yml
+  when: step == "retreive-join-token"
+
+- name: join manager nodes to cluster
+  when: step == "join-manager-nodes"
+  shell: >
+    docker swarm join
+    --advertise-addr={{ docker_swarm_iface }}:2377
+    --token={{ hostvars[groups['docker-manager-operational'][0]]['swarm_manager_token']['stdout'] }}
+    {{ groups['docker-swarm-manager-ips'][0] }}:2377
+
+- name: Boostrap worker status
+  include: boostrap-worker-steps.yml
+  when: step == "boostrap-worker-steps"
+
+- name: join worker nodes to cluster
+  when: step == "worker-bootstrap"
+  shell: >
+    docker swarm join
+    --advertise-addr={{ docker_swarm_iface }}:2377
+    --token={{ hostvars[groups['docker-manager-operational'][0]]['swarm_worker_token']['stdout'] }}
+    {{ groups['docker-swarm-manager-ips'][0] }}:2377

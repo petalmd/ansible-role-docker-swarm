@@ -1,0 +1,12 @@
+[docker-manager]
+1.2.3.4
+1.2.3.5
+1.2.3.6
+
+[docker-worker]
+4.3.2.1
+4.3.2.2
+4.3.2.3
+
+[all:vars]
+ansible_python_interpreter="PATH=/root/bin:$PATH python"

@@ -1,0 +1,32 @@
+---
+# determine the status of each manager node and break them
+# into two groups:
+#   - docker-manager-operational (swarm is running and active)
+#   - docker-manager-boostrap (host needs to be joined to the cluster)
+- name: Determine swarm status
+  shell: "docker info | egrep '^Swarm: ' | cut -d ' ' -f2"
+  register: swarm_status
+
+- name: Create docker-manager-operational group
+  add_host:
+    hostname: "{{ item }}"
+    groups: docker-manager-operational
+  with_items: "{{ play_hosts }}"
+  when: "'active' in swarm_status.stdout_lines"
+  run_once: true
+
+- name: Create docker-manager-boostrap group
+  add_host:
+    hostname: "{{ item }}"
+    groups: docker-manager-boostrap
+  with_items: "{{ play_hosts }}"
+  when: "'active' not in swarm_status.stdout_lines"
+  run_once: true
+
+
+
+
+
+
+
+

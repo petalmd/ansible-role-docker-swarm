@@ -1,0 +1,14 @@
+---
+- name: retrieve swarm manager token
+  shell: docker swarm join-token -q manager
+  register: swarm_manager_token
+
+- name: retrieve swarm worker token
+  shell: docker swarm join-token -q worker
+  register: swarm_worker_token
+
+- name: populate list of manager ips
+  add_host:
+    hostname: "{{ hostvars[item]['ansible_' + docker_swarm_iface]['ipv4']['address'] }}"
+    groups: docker-swarm-manager-ips
+  with_items: "{{ ansible_play_hosts | default(play_hosts) }}"

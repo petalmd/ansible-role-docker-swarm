@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Julien Maitrehenry
+  description: Role for creating/managing a Docker Swarm cluster
+  company: PetalMD
+  license: Apache
+  min_ansible_version: 1.9
+  platforms:
+    - name: GenericLinux
+    - name: Amazon
+    - name: CentOS
+    - name: CoreOS
+    - name: EL
+    - name: Debian
+    - name: ubuntu
+  categories:
+    - docker
+    - swarm
