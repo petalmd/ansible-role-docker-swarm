@@ -8,5 +8,11 @@
 4.3.2.2
 4.3.2.3
 
+[docker-manager:vars]
+docker_swarm_node_kind=manager
+
+[docker-worker:vars]
+docker_swarm_node_kind=worker
+
 [all:vars]
 ansible_python_interpreter="PATH=/root/bin:$PATH python"

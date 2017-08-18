@@ -1,39 +1,19 @@
 ---
-- name: Docker Manager
-  hosts: docker-manager
-  gather_facts: True
+- name: CoreOS
+  hosts: coreos
+  gather_facts: false
   roles:
     - defunctzombie.coreos-bootstrap
-    - { role: docker-swarm, step: boostrap-manager-steps }
+
+- name: Docker Manager
+  hosts: docker-manager
+  gather_facts: true
+  roles:
+    - docker-swarm
 
 - name: Docker Worker
   hosts: docker-worker
+  gather_facts: true
   roles:
-    - defunctzombie.coreos-bootstrap
-    - { role: docker-swarm, step: boostrap-worker-steps }
+    - docker-swarm
 
-# Other groups are created by the two boostrap step above
-- name: Docker Manager boostrap
-  hosts: docker-manager-boostrap
-  roles:
-    - { role: docker-swarm, step: manager-boostrap }
-
-- name: Retreive the join token
-  hosts: docker-manager-operational[0]
-  roles:
-    - { role: docker-swarm, step: retreive-join-token }
-
-- name: Join - manager nodes
-  hosts: docker-manager-boostrap:!docker-manager-operational
-  roles:
-    - { role: docker-swarm, step: join-manager-nodes }
-
-- name: Docker Worker boostrap
-  hosts: docker-worker-boostrap
-  roles:
-    - { role: docker-swarm, step: docker-worker-boostrap }
-
-- name: Join - worker nodes
-  hosts: docker-swarm-worker-bootstrap
-  roles:
-    - { role: docker-swarm, step: worker-bootstrap }

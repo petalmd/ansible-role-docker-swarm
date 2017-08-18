@@ -1,0 +1,35 @@
+---
+- name: Determine swarm status
+  shell: "docker info | egrep '^Swarm: ' | cut -d ' ' -f2"
+  register: swarm_status
+
+- set_fact:
+    docker_swarm_manager_status: "{{ swarm_status.stdout }}"
+
+- name: Create docker-manager-operational group
+  add_host:
+    hostname: "{{ item }}"
+    groups: docker-manager-operational
+  when: hostvars['{{item}}']['docker_swarm_manager_status'] == 'active'
+  with_items: play_hosts
+
+- name: Create docker-manager-boostrap group
+  add_host:
+    hostname: "{{ item }}"
+    groups: docker-manager-boostrap
+  when: hostvars['{{item}}']['docker_swarm_manager_status'] == 'inactive'
+  with_items: play_hosts
+
+- include: manager-boostrap.yml
+  when: "'docker-manager-operational' not in groups and groups['docker-manager-boostrap'][0] == inventory_hostname"
+
+- include: retreive-join-token.yml
+  when: docker_swarm_manager_status == "active" or inventory_hostname == groups['docker-manager-operational'][0]
+
+- name: join manager nodes to cluster
+  when: docker_swarm_manager_status == "inactive" and not (groups['docker-manager-boostrap'][0] == groups['docker-manager-operational'][0] and groups['docker-manager-boostrap'][0] == inventory_hostname)
+  shell: >
+    docker swarm join
+    --advertise-addr={{ docker_swarm_iface }}:2377
+    --token={{ hostvars[groups['docker-manager-operational'][0]]['swarm_manager_token']['stdout'] }}
+    {{ groups['docker-swarm-manager-ips'][0] }}:2377

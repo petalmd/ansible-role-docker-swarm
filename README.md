@@ -15,44 +15,16 @@ $ ansible-galaxy install petalmd.docker-swarm
 ---
 - name: Docker Manager
   hosts: docker-manager
-  gather_facts: True
+  gather_facts: true
   roles:
-    - defunctzombie.coreos-bootstrap
-    - { role: docker-swarm, step: boostrap-manager-steps }
+    - { role: docker-swarm, docker_swarm_mode_kind: manager }
 
 
 - name: Docker Worker
   hosts: docker-worker
+  gather_facts: true
   roles:
-    - defunctzombie.coreos-bootstrap
-    - { role: docker-swarm, step: boostrap-worker-steps }
-
-# Hosts group are created when boostrap-worker-steps and boostrap-manager-steps run
-- name: Docker Manager boostrap
-  hosts: docker-manager-boostrap
-  roles:
-    - { role: docker-swarm, step: manager-boostrap }
-
-
-- name: Retreive the join token
-  hosts: docker-manager-operational[0]
-  roles:
-    - { role: docker-swarm, step: retreive-join-token }
-
-- name: Join - manager nodes
-  hosts: docker-manager-boostrap:!docker-manager-operational
-  roles:
-    - { role: docker-swarm, step: join-manager-nodes }
-
-- name: Docker Worker boostrap
-  hosts: docker-worker-boostrap
-  roles:
-    - { role: docker-swarm, step: docker-worker-boostrap }
-
-- name: Join - worker nodes
-  hosts: docker-swarm-worker-bootstrap
-  roles:
-    - { role: docker-swarm, step: worker-bootstrap }
+    - { role: docker-swarm, docker_swarm_mode_kind: worker }
 
 ```
 

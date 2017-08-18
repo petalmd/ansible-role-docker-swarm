@@ -3,9 +3,15 @@
   shell: docker swarm join-token -q manager
   register: swarm_manager_token
 
+- set_fact:
+    docker_swarm_manager_token: "{{ swarm_manager_token }}"
+
 - name: retrieve swarm worker token
   shell: docker swarm join-token -q worker
   register: swarm_worker_token
+
+- set_fact:
+    docker_swarm_worker_token: "{{ swarm_worker_token }}"
 
 - name: populate list of manager ips
   add_host:
